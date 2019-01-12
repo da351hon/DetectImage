@@ -1,0 +1,20 @@
+{
+  "info" : {
+    "version" : 1,
+    "author" : "xcode"
+  },
+  "resources" : [
+    {
+      "filename" : "yen1.arreferenceimage"
+    },
+    {
+      "filename" : "yen5.arreferenceimage"
+    },
+    {
+      "filename" : "yen10.arreferenceimage"
+    },
+    {
+      "filename" : "yen50.arreferenceimage"
+    }
+  ]
+}
