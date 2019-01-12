@@ -11,7 +11,7 @@ import SceneKit
 import ARKit
 
 class ViewController: UIViewController, ARSCNViewDelegate {
-
+    
     @IBOutlet var sceneView: ARSCNView!
     
     override func viewDidLoad() {
@@ -44,7 +44,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         let configuration = ARImageTrackingConfiguration()
         configuration.trackingImages =
             ARReferenceImage.referenceImages(inGroupNamed: "AR Resources", bundle: nil)!
-
+        
         // Run the view's session
         sceneView.session.run(configuration)
     }
@@ -55,17 +55,49 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         // Pause the view's session
         sceneView.session.pause()
     }
-
-    // MARK: - ARSCNViewDelegate
     
-/*
-    // Override to create and configure nodes for anchors added to the view's session.
-    func renderer(_ renderer: SCNSceneRenderer, nodeFor anchor: ARAnchor) -> SCNNode? {
-        let node = SCNNode()
-     
-        return node
+    // 画像検出時に呼び出される
+    func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor:
+        ARAnchor) {
+        // 検出をバイブで通知
+        AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
+        
+        var displayText = "硬貨"
+        if let imageAnchor = anchor as? ARImageAnchor {
+            if let name = imageAnchor.referenceImage.name {
+                switch name {
+                case "yen1":
+                    displayText = "1円"
+                case "yen5":
+                    displayText = "5円"
+                case "yen10":
+                    displayText = "10円"
+                case "yen50":
+                    displayText = "50円"
+                default:
+                    displayText = "？"
+                }
+            }
+        }
+        
+        let text = SCNText(string: displayText, extrusionDepth: 0.2)
+        text.font = UIFont.systemFont(ofSize: 1.0)
+        text.firstMaterial?.diffuse.contents = UIColor.red
+        let textNode = SCNNode(geometry: text)
+        
+        let (min, max) = (textNode.boundingBox)
+        let w = Float(max.x - min.x)
+        let ratio = 0.02 / w
+        textNode.scale = SCNVector3(ratio, ratio, ratio)
+        textNode.pivot = SCNMatrix4Rotate(textNode.pivot, Float.pi, 0, 1, 0)
+        
+        // テキストをカメラ方向固定にする
+        let constraint = SCNLookAtConstraint(target: sceneView.pointOfView)
+        constraint.isGimbalLockEnabled = true
+        textNode.constraints = [constraint]
+        
+        node.addChildNode(textNode)
     }
-*/
     
     func session(_ session: ARSession, didFailWithError error: Error) {
         // Present an error message to the user
